@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zaid Madrid-Martinez</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --deep: #0d0d0d;
+    --surface: #141414;
+    --white: #f0f0f0;
+    --gray: #3a3a3a;
+    --gray-mid: #5a5a5a;
+    --gray-light: #888;
+    --highlight: #c8c8c8;
+    --border: rgba(255,255,255,0.08);
+    --ghost: rgba(255,255,255,0.04);
+    --grid: rgba(255,255,255,0.022);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { cursor: none !important; }
+
+  #cursor {
+    position: fixed; width: 8px; height: 8px;
+    background: #fff; border-radius: 50%;
+    pointer-events: none; z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: width 0.15s, height 0.15s;
+  }
+  #cursor-ring {
+    position: fixed; width: 32px; height: 32px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50%; pointer-events: none; z-index: 99998;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, border-color 0.2s;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none; z-index: 0;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 64px;
+    background: rgba(8,8,8,0.93);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px; font-weight: 700;
+    color: var(--white); letter-spacing: 5px;
+  }
+  .nav-links { display: flex; gap: 44px; }
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--gray-light);
+    text-decoration: none; letter-spacing: 2px;
+    text-transform: uppercase; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-right {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--gray-mid);
+    letter-spacing: 2px; display: flex; align-items: center; gap: 10px;
+  }
+  .status-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--highlight); animation: pulse 2.5s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+  section { position: relative; z-index: 2; }
+
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 160px 64px 100px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg-text {
+    position: absolute; right: 0; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(100px, 14vw, 220px);
+    font-weight: 900; color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.03);
+    letter-spacing: -8px; line-height: 1;
+    pointer-events: none; user-select: none; white-space: nowrap;
+  }
+  .hero-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--gray-mid);
+    letter-spacing: 5px; text-transform: uppercase; margin-bottom: 28px;
+  }
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(44px, 7vw, 100px);
+    font-weight: 900; line-height: 0.92;
+    letter-spacing: -3px; margin-bottom: 10px;
+  }
+  h1 .name-first { color: var(--white); display: block; }
+  h1 .name-last {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.45);
+    display: block;
+  }
+  .hero-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(11px, 1.4vw, 15px);
+    color: var(--gray-light); letter-spacing: 4px;
+    margin: 28px 0 44px; text-transform: uppercase;
+  }
+  .hero-desc {
+    max-width: 460px; color: var(--gray-light);
+    font-size: 16px; line-height: 1.85;
+    border-left: 1px solid var(--gray);
+    padding-left: 24px; margin-bottom: 52px;
+  }
+  .btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; letter-spacing: 3px;
+    text-transform: uppercase; text-decoration: none;
+    padding: 14px 36px; display: inline-block;
+    transition: all 0.25s;
+    border: 1px solid rgba(255,255,255,0.22); color: var(--white);
+  }
+  .btn:hover { border-color: var(--white); background: rgba(255,255,255,0.05); }
+  .hero-metrics {
+    position: absolute; bottom: 64px; right: 64px;
+    display: flex; gap: 52px;
+  }
+  .metric { text-align: right; }
+  .metric-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px; font-weight: 700; color: var(--white); line-height: 1;
+  }
+  .metric-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: var(--gray-mid);
+    letter-spacing: 2px; text-transform: uppercase; margin-top: 6px;
+  }
+
+  .section-inner { max-width: 1160px; margin: 0 auto; padding: 100px 64px; }
+  .section-header {
+    display: flex; align-items: center; gap: 24px; margin-bottom: 64px;
+  }
+  .section-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--gray-mid); letter-spacing: 3px;
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(22px, 3.5vw, 36px);
+    font-weight: 700; color: var(--white); letter-spacing: -1px;
+  }
+  .section-title span { color: var(--highlight); }
+  .section-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  #career { background: var(--deep); }
+  .career-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;
+  }
+  .career-text h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px; color: var(--white);
+    margin-bottom: 20px; font-weight: 700; letter-spacing: 1px;
+  }
+  .career-text p {
+    color: var(--gray-light); line-height: 1.9;
+    font-size: 15px; margin-bottom: 18px;
+  }
+  .career-specs { display: flex; flex-direction: column; }
+  .spec-row {
+    display: flex; align-items: center;
+    border-bottom: 1px solid var(--border); padding: 14px 0;
+  }
+  .spec-row:first-child { border-top: 1px solid var(--border); }
+  .spec-key {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: var(--gray-mid);
+    letter-spacing: 2px; text-transform: uppercase; width: 140px; flex-shrink: 0;
+  }
+  .spec-val { font-size: 14px; color: var(--white); font-weight: 600; }
+
+  #pitch { background: var(--black); }
+  .pitch-container {
+    border: 1px solid var(--border); padding: 56px 64px;
+    background: var(--ghost);
+  }
+  .pitch-text {
+    font-size: clamp(16px, 1.8vw, 21px);
+    line-height: 1.9; color: var(--gray-light); font-weight: 400;
+  }
+  .pitch-text strong { color: var(--white); font-weight: 700; }
+
+  #statement { background: var(--deep); }
+  .statement-layout {
+    display: grid; grid-template-columns: 160px 1fr; gap: 64px;
+  }
+  .statement-sidebar { position: sticky; top: 120px; height: fit-content; }
+  .sidebar-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: var(--gray-mid);
+    letter-spacing: 3px; text-transform: uppercase;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    border-left: 1px solid var(--gray); padding-left: 14px;
+  }
+  .statement-body p {
+    color: var(--gray-light); font-size: 15px;
+    line-height: 1.95; margin-bottom: 22px;
+  }
+  .statement-body strong { color: var(--white); font-weight: 700; }
+
+  #strengths { background: var(--black); }
+  .strengths-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border: 1px solid var(--border); margin-bottom: 0;
+  }
+  .strength-card {
+    padding: 32px 18px; background: var(--surface);
+    transition: background 0.25s; text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .strength-card:last-child { border-right: none; }
+  .strength-card:hover { background: var(--deep); }
+  .strength-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: var(--gray-mid);
+    letter-spacing: 2px; margin-bottom: 14px;
+  }
+  .strength-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px; font-weight: 700;
+    color: var(--white); margin-bottom: 14px;
+    line-height: 1.3; letter-spacing: 1px;
+  }
+  .strength-desc { font-size: 12px; color: var(--gray-light); line-height: 1.65; }
+  .strengths-reflection {
+    border: 1px solid var(--border); border-top: none;
+    padding: 28px 32px; background: var(--ghost);
+  }
+  .strengths-reflection p { color: var(--gray-light); font-size: 14px; line-height: 1.85; }
+
+  #ceos { background: var(--deep); }
+  .ceo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .ceo-card {
+    border: 1px dashed var(--gray); background: transparent;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center; min-height: 240px;
+    padding: 36px 28px;
+    transition: border-color 0.25s;
+  }
+  .ceo-card:hover { border-color: rgba(255,255,255,0.2); }
+  .ceo-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: var(--gray-mid);
+    letter-spacing: 3px; margin-bottom: 12px; text-transform: uppercase;
+  }
+  .placeholder-icon { font-size: 24px; color: var(--gray); margin-bottom: 16px; }
+  .placeholder-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--gray-mid);
+    letter-spacing: 2px; text-transform: uppercase; line-height: 1.8;
+  }
+
+  #resume { background: var(--black); }
+  .resume-frame { border: 1px solid var(--border); padding: 52px; background: var(--surface); }
+  .resume-header-block { border-bottom: 1px solid var(--border); padding-bottom: 28px; margin-bottom: 36px; }
+  .resume-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px; font-weight: 900; color: var(--white); letter-spacing: -1px;
+  }
+  .resume-contact {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; color: var(--gray-light); margin-top: 10px; letter-spacing: 1px;
+  }
+  .resume-section { margin-bottom: 32px; }
+  .resume-section-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: var(--gray-mid);
+    letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 20px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .resume-entry { margin-bottom: 22px; }
+  .resume-entry-header {
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;
+  }
+  .resume-role { font-size: 15px; font-weight: 700; color: var(--white); }
+  .resume-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--gray-mid);
+  }
+  .resume-company {
+    font-size: 11px; color: var(--gray-light);
+    font-family: 'Share Tech Mono', monospace;
+    margin-bottom: 10px; letter-spacing: 1px;
+  }
+  .resume-bullets li {
+    font-size: 13px; color: var(--gray-light);
+    line-height: 1.75; margin-bottom: 4px;
+    list-style: none; padding-left: 18px; position: relative;
+  }
+  .resume-bullets li::before {
+    content: ''; position: absolute; left: 0; top: 9px;
+    width: 6px; height: 1px; background: var(--gray-mid);
+  }
+  .resume-skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .skill-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--gray-light);
+    border: 1px solid var(--border);
+    padding: 9px 14px; text-align: center; letter-spacing: 1px;
+    background: var(--ghost);
+  }
+
+  #linkedin { background: var(--deep); }
+  .linkedin-block {
+    display: flex; align-items: center; gap: 48px;
+    border: 1px solid var(--border); padding: 52px 64px; background: var(--surface);
+  }
+  .linkedin-icon {
+    font-family: 'Orbitron', monospace;
+    font-size: 40px; color: var(--white); font-weight: 900; flex-shrink: 0; opacity: 0.75;
+  }
+  .linkedin-info h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 17px; color: var(--white); margin-bottom: 8px; letter-spacing: -0.5px;
+  }
+  .linkedin-info p { color: var(--gray-light); font-size: 14px; margin-bottom: 24px; line-height: 1.7; }
+
+  #timeline { background: var(--black); }
+  .timeline-note {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--gray-mid);
+    letter-spacing: 3px; margin-bottom: 52px;
+    text-align: center; text-transform: uppercase;
+  }
+  .timeline-track { position: relative; padding: 20px 0; }
+  .timeline-track::before {
+    content: ''; position: absolute;
+    left: 50%; top: 0; bottom: 0; width: 1px;
+    background: linear-gradient(180deg, transparent, var(--gray), transparent);
+    transform: translateX(-50%);
+  }
+  .timeline-item { display: flex; margin-bottom: 52px; position: relative; }
+  .timeline-item:nth-child(odd) { flex-direction: row-reverse; }
+  .timeline-item:nth-child(odd) .tl-content { text-align: right; margin-right: 64px; margin-left: 0; }
+  .timeline-item:nth-child(even) .tl-content { margin-left: 64px; }
+  .tl-content { width: calc(50% - 64px); }
+  .tl-dot {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    width: 9px; height: 9px; background: var(--white); border-radius: 50%;
+    border: 2px solid var(--black); top: 8px;
+  }
+  .tl-year {
+    font-family: 'Orbitron', monospace;
+    font-size: 19px; font-weight: 700; color: var(--white); margin-bottom: 6px;
+  }
+  .tl-milestone { font-size: 14px; font-weight: 700; color: var(--highlight); margin-bottom: 6px; }
+  .tl-desc { font-size: 13px; color: var(--gray-light); line-height: 1.7; }
+
+  footer {
+    position: relative; z-index: 2;
+    border-top: 1px solid var(--border); padding: 36px 64px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--deep);
+  }
+  .footer-left, .footer-right {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--gray-mid); letter-spacing: 2px;
+  }
+
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    nav { padding: 18px 24px; }
+    .nav-links { display: none; }
+    .section-inner { padding: 72px 24px; }
+    #hero { padding: 130px 24px 72px; }
+    .career-grid, .statement-layout { grid-template-columns: 1fr; }
+    .strengths-grid { grid-template-columns: repeat(2, 1fr); border: none; gap: 12px; }
+    .strength-card { border: 1px solid var(--border); }
+    .ceo-grid { grid-template-columns: 1fr; }
+    .hero-metrics { position: static; margin-top: 52px; }
+    .hero-bg-text { display: none; }
+    .resume-skills-grid { grid-template-columns: repeat(2, 1fr); }
+    .linkedin-block { flex-direction: column; padding: 36px 28px; gap: 24px; }
+    footer { flex-direction: column; gap: 10px; text-align: center; }
+    .timeline-track::before { left: 16px; }
+    .timeline-item, .timeline-item:nth-child(odd) { flex-direction: column; }
+    .tl-content, .timeline-item:nth-child(odd) .tl-content,
+    .timeline-item:nth-child(even) .tl-content {
+      width: 100%; margin-left: 40px; margin-right: 0; text-align: left;
+    }
+    .tl-dot { left: 16px; }
+    .pitch-container { padding: 36px 28px; }
+    .resume-frame { padding: 32px 24px; }
+    .strengths-reflection { border-top: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <div class="nav-logo">ZMM</div>
+  <div class="nav-links">
+    <a href="#career">Career</a>
+    <a href="#pitch">About</a>
+    <a href="#statement">Statement</a>
+    <a href="#strengths">Strengths</a>
+    <a href="#ceos">CEOs</a>
+    <a href="#resume">Resume</a>
+    <a href="#linkedin">LinkedIn</a>
+    <a href="#timeline">Timeline</a>
+  </div>
+  <div class="nav-right">
+    <div class="status-dot"></div>
+    UNO 2026
+  </div>
+</nav>
+
+<section id="hero">
+  <div class="hero-bg-text">AI</div>
+  <div class="hero-label">Portfolio / US 2020 / Spring 2026</div>
+  <h1>
+    <span class="name-first">ZAID</span>
+    <span class="name-last">MADRID-MARTINEZ</span>
+  </h1>
+  <div class="hero-sub">Computer Science &amp; AI &nbsp;Â·&nbsp; University of Nebraska Omaha</div>
+  <p class="hero-desc">
+    Sophomore pursuing a degree in Computer Science and Artificial Intelligence. Currently working in enterprise IT at Omnicom, building toward a career in AI Engineering.
+  </p>
+  <div class="hero-actions">
+    <a href="https://www.linkedin.com/in/zaid-m-9a81a135b" target="_blank" class="btn">LinkedIn</a>
+  </div>
+  <div class="hero-metrics">
+    <div class="metric">
+      <div class="metric-value">2028</div>
+      <div class="metric-label">Graduation</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">2+</div>
+      <div class="metric-label">Internships</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">AI</div>
+      <div class="metric-label">Focus</div>
+    </div>
+  </div>
+</section>
+
+<section id="career">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-num">01</div>
+      <h2 class="section-title">Career <span>Description</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="career-grid">
+      <div class="career-text reveal">
+        <h3>AI Engineer</h3>
+        <p>AI Engineers build and deploy intelligent systems that solve real problems at scale. The work sits at the intersection of software engineering, data science, and machine learning, taking models from research into production environments where they actually run.</p>
+        <p>The field is expanding fast, driven by advances in large language models, computer vision, and automation. Organizations across every industry are building AI infrastructure, and the demand for engineers who can design, deploy, and maintain those systems is growing with it.</p>
+        <p>My path into this field starts with a technical foundation at UNO and real enterprise experience at Omnicom, where I work inside the kind of systems that AI is already beginning to transform.</p>
+      </div>
+      <div class="career-specs reveal">
+        <div class="spec-row"><div class="spec-key">Degree</div><div class="spec-val">B.S. Computer Science &amp; AI</div></div>
+        <div class="spec-row"><div class="spec-key">Minors</div><div class="spec-val">Mathematics &amp; Business Admin</div></div>
+        <div class="spec-row"><div class="spec-key">University</div><div class="spec-val">University of Nebraska Omaha</div></div>
+        <div class="spec-row"><div class="spec-key">Expected Grad</div><div class="spec-val">May 2028</div></div>
+        <div class="spec-row"><div class="spec-key">Career Field</div><div class="spec-val">Artificial Intelligence Engineering</div></div>
+        <div class="spec-row"><div class="spec-key">Current Role</div><div class="spec-val">IT Intern at Omnicom</div></div>
+        <div class="spec-row"><div class="spec-key">Focus Areas</div><div class="spec-val">Machine Learning, LLMs, Systems</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pitch">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-num">02</div>
+      <h2 class="section-title">Tell Me About <span>Yourself</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="pitch-container reveal">
+      <p class="pitch-text">
+        My name is <strong>Zaid Madrid-Martinez</strong>. I am a sophomore at the University of Nebraska Omaha studying Computer Science and Artificial Intelligence, with minors in Mathematics and Business Administration. I currently work as an IT Intern at <strong>Omnicom</strong>, managing enterprise systems, automating workflows, and collaborating with technical teams across the organization. That experience gave me a ground-level understanding of how large-scale technology environments actually operate. My goal is to move into AI Engineering, where I can build and deploy intelligent systems that do meaningful work in the real world.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="statement">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-num">03</div>
+      <h2 class="section-title">Personal <span>Statement</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="statement-layout">
+      <div class="statement-sidebar reveal">
+        <div class="sidebar-label">Academic and Professional Journey</div>
+      </div>
+      <div class="statement-body reveal">
+        <p>I have always been drawn to systems. The way things connect, operate under pressure, and fail in ways nobody expected. Growing up in Omaha, I watched technology reshape the industries around me while a path into that world felt out of reach. That distance became the reason I started. I chose Computer Science and Artificial Intelligence because it was the hardest, most meaningful commitment I could make to the future I wanted.</p>
+        <p>What I value most is growth that actually shows up in the work. My internship at Omnicom put me inside enterprise IT operations as a sophomore. I was resolving real system failures, managing access control for a global organization, and automating processes with PowerShell. That experience taught me more about how intelligent systems break, and how to keep them from breaking, than a classroom setting alone could offer.</p>
+        <p>At AutoZone I managed a team and learned that leadership is mostly about execution and consistency. At A&amp;B Team Underground I handled client communication and project coordination in a physically demanding field. Both taught me that professionalism travels with you regardless of the setting.</p>
+        <p>My strongest skill is working across the technical and the human. I can build something in code and explain it clearly to someone who has never touched a terminal. I think in systems, plan in timelines, and measure my progress against the highest standard I can find. AI Engineering is where those things converge, and it is what I am working toward.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="strengths">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-num">04</div>
+      <h2 class="section-title">Strengths <span>Connection</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="strengths-grid">
+      <div class="strength-card reveal">
+        <div class="strength-num">01</div>
+        <div class="strength-name">Competition</div>
+        <div class="strength-desc">I measure progress against the highest bar available. In AI that means benchmarking, optimizing, and pushing past what already works.</div>
+      </div>
+      <div class="strength-card reveal">
+        <div class="strength-num">02</div>
+        <div class="strength-name">Futuristic</div>
+        <div class="strength-desc">I see where technology is heading before it arrives. This helps me position toward where AI is going, not just where it is today.</div>
+      </div>
+      <div class="strength-card reveal">
+        <div class="strength-num">03</div>
+        <div class="strength-name">Ideation</div>
+        <div class="strength-desc">I connect concepts across different domains. In engineering, that means finding solutions that do not already exist rather than repeating what does.</div>
+      </div>
+      <div class="strength-card reveal">
+        <div class="strength-num">04</div>
+        <div class="strength-name">Individualization</div>
+        <div class="strength-desc">I see what makes each person effective and adapt how I work with them. In technical teams, that makes collaboration more direct.</div>
+      </div>
+      <div class="strength-card reveal">
+        <div class="strength-num">05</div>
+        <div class="strength-name">Strategic</div>
+        <div class="strength-desc">I find patterns quickly and identify the most efficient path forward. That is the core of engineering problem solving at every level.</div>
+      </div>
+    </div>
+    <div class="strengths-reflection reveal">
+      <p>These five work together. Competition sets the standard. Futuristic sets the direction. Ideation generates the options. Individualization builds the team around them. Strategic chooses the path. The tension I manage is pace. My instinct is to move fast and I have to slow down enough to bring others along, which I do through deliberate listening and clearer communication.</p>
+    </div>
+  </div>
+</section>
+
+<section id="ceos">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-num">05</div>
+      <h2 class="section-title">Career Engagement <span>Opportunities</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="ceo-grid">
+      <div class="ceo-card reveal">
+        <div class="placeholder-icon">â</div>
+        <div class="ceo-num">CEO 01 / Incoming</div>
+        <div class="placeholder-text">Experience and reflection<br>coming soon</div>
+      </div>
+      <div class="ceo-card reveal">
+        <div class="placeholder-icon">â</div>
+        <div class="ceo-num">CEO 02 / Incoming</div>
+        <div class="placeholder-text">Experience and reflection<br>coming soon</div>
+      </div>
+      <div class="ceo-card reveal">
+        <div class="placeholder-icon">â</div>
+        <div class="ceo-num">CEO 03 / Incoming</div>
+        <div class="placeholder-text">Experience and reflection<br>coming soon</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="resume">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-num">06</div>
+      <h2 class="section-title">Resume</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="resume-frame reveal">
+      <div class="resume-header-block">
+        <div class="resume-name">ZAID MADRID-MARTINEZ</div>
+        <div class="resume-contact">Zaidmadrid13@outlook.com &nbsp;Â·&nbsp; linkedin.com/in/zaid-m-9a81a135b</div>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Work Experience</div>
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-role">IT Intern</div>
+            <div class="resume-date">Sep 2025 to Present</div>
+          </div>
+          <div class="resume-company">Omnicom (Formerly IPG) &nbsp;Â·&nbsp; Omaha, NE</div>
+          <ul class="resume-bullets">
+            <li>Manage and resolve daily IT support tickets related to server issues, account discrepancies, and access permissions</li>
+            <li>Create and maintain user accounts using Active Directory and Helix Digital Workplace</li>
+            <li>Collaborate with Application Support, Local IT, and server teams on escalated incidents</li>
+            <li>Use PowerShell for administrative tasks and account management automation</li>
+          </ul>
+        </div>
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-role">Operations Intern</div>
+            <div class="resume-date">Jan 2024 to Present</div>
+          </div>
+          <div class="resume-company">A&amp;B Team Underground LLC &nbsp;Â·&nbsp; Omaha, NE</div>
+          <ul class="resume-bullets">
+            <li>Partnered with senior management to oversee daily operations and safety compliance</li>
+            <li>Prepared and delivered progress updates to clients and stakeholders</li>
+            <li>Coordinated vendor relations and client communication</li>
+          </ul>
+        </div>
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-role">Manager</div>
+            <div class="resume-date">Aug 2023 to Jan 2024</div>
+          </div>
+          <div class="resume-company">AutoZone &nbsp;Â·&nbsp; Omaha, NE</div>
+          <ul class="resume-bullets">
+            <li>Supervised daily store operations and led a team to meet sales and service targets</li>
+            <li>Managed inventory, cash flow, and new employee training</li>
+          </ul>
+        </div>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Education</div>
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-role">B.S. Computer Science &amp; Artificial Intelligence</div>
+            <div class="resume-date">Expected May 2028</div>
+          </div>
+          <div class="resume-company">University of Nebraska Omaha &nbsp;Â·&nbsp; Minors: Mathematics and Business Administration</div>
+        </div>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Skills</div>
+        <div class="resume-skills-grid">
+          <div class="skill-tag">PowerShell</div>
+          <div class="skill-tag">Active Directory</div>
+          <div class="skill-tag">Python</div>
+          <div class="skill-tag">Machine Learning</div>
+          <div class="skill-tag">Systems Administration</div>
+          <div class="skill-tag">IT Support</div>
+          <div class="skill-tag">Project Management</div>
+          <div class="skill-tag">Data Analysis</div>
+          <div class="skill-tag">Leadership</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="linkedin">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-num">07</div>
+      <h2 class="section-title">LinkedIn</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="linkedin-block reveal">
+      <div class="linkedin-icon">in</div>
+      <div class="linkedin-info">
+        <h3>Zaid Madrid-Martinez</h3>
+        <p>View my full work history and professional background on LinkedIn.</p>
+        <a href="https://www.linkedin.com/in/zaid-m-9a81a135b" target="_blank" class="btn">View Profile</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="timeline">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-num">08</div>
+      <h2 class="section-title">Long-Term <span>Goals</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline-note">Career Readiness Timeline &nbsp;Â·&nbsp; 2026 to 2033</div>
+    <div class="timeline-track">
+      <div class="timeline-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-year">2026</div>
+          <div class="tl-milestone">Complete Sophomore Year</div>
+          <div class="tl-desc">Finish CS, math, and machine learning coursework. Use current internship to build real enterprise IT experience.</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-year">2027</div>
+          <div class="tl-milestone">Junior Year &nbsp;Â·&nbsp; Deeper Technical Work</div>
+          <div class="tl-desc">Stronger programming, data, and systems courses. Improve Python, SQL, and statistics. Target an AI or software engineering internship.</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-year">2028</div>
+          <div class="tl-milestone">Graduate from UNO</div>
+          <div class="tl-desc">Complete degree with projects and internship experience supporting technical roles. Finish a capstone in machine learning or applied AI.</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-year">2029</div>
+          <div class="tl-milestone">First Full-Time Technical Role</div>
+          <div class="tl-desc">Start in software engineering, data engineering, or ML support. Build production experience in a real technical environment.</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-year">2031 to 2033</div>
+          <div class="tl-milestone">AI Engineer</div>
+          <div class="tl-desc">Move into a dedicated AI role building and integrating machine learning systems. Specialize in LLMs, computer vision, or AI product engineering.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-left">Zaid Madrid-Martinez &nbsp;Â·&nbsp; UNO &nbsp;Â·&nbsp; Spring 2026</div>
+  <div class="footer-right">US 2020 &nbsp;Â·&nbsp; Thompson Learning Community</div>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animateRing() {
+    rx += (mx - rx) * 0.1;
+    ry += (my - ry) * 0.1;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '4px';
+      cursor.style.height = '4px';
+      ring.style.width = '46px';
+      ring.style.height = '46px';
+      ring.style.borderColor = 'rgba(255,255,255,0.55)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '8px';
+      cursor.style.height: '8px';
+      ring.style.width = '32px';
+      ring.style.height = '32px';
+      ring.style.borderColor = 'rgba(255,255,255,0.30)';
+    });
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const siblings = e.target.parentElement.querySelectorAll('.reveal');
+        siblings.forEach((s, i) => setTimeout(() => s.classList.add('visible'), i * 70));
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(r => observer.observe(r));
+</script>
+</body>
+</html>
